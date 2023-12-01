@@ -147,8 +147,17 @@ void schedule() {
   if (runningState != -1 ) {
     return;
   } 
-  // if()
 
+  if (readyState.size() != 0) {
+    runningState = readyState.front();
+    readyState.pop_front();
+    PcbEntry curPCBEntry = pcbEntry[runningState];
+    cpu.pProgram = &curPCBEntry.program;
+    cpu.programCounter = curPCBEntry.programCounter;
+    cpu.value = curPCBEntry.value;
+    cpu.timeSlice = curPCBEntry.startTime;
+    cpu.timeSliceUsed = curPCBEntry.timeUsed;
+  }
 }
 // Implements the B operation.
 void block() {
@@ -159,6 +168,12 @@ void block() {
 // b. Store the CPU program counter in the PCB's program counter.
 // c. Store the CPU's value in the PCB's value.
 // 3. Update the running state to -1 (basically mark no process as running).Note that a new process will be chosen to run later(via the Q command code calling the schedule()function).
+  blockedState.push_back(runningState);
+  PcbEntry curPCBEntry = pcbEntry[runningState];
+  curPCBEntry.state = STATE_BLOCKED;
+  curPCBEntry.programCounter = cpu.programCounter;
+  curPCBEntry.value = cpu.value;
+  runningState = -1;
 }
 // Implements the E operation.
 void end() {
@@ -167,6 +182,10 @@ void end() {
 // 2. Update the cumulative time difference (increment it by timestamp + 1 - start time of the process).
 // 3. Increment the number of terminated processes.
 // 4. Update the running state to -1 (basically mark no process as running).Note that a new process will be chosen to run later(via the Q command code calling the schedule function).
+  PcbEntry curPCBEntry = pcbEntry[runningState];
+  cumulativeTimeDiff += timestamp + 1 - curPCBEntry.startTime;
+  numTerminatedProcesses++;
+  runningState = -1;
 }
 // Implements the F operation.
 void fork(int value) {
