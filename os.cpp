@@ -155,6 +155,7 @@ void schedule() {
     cpu.pProgram = &curPCBEntry.program;
     cpu.programCounter = curPCBEntry.programCounter;
     cpu.value = curPCBEntry.value;
+    // just in case, maybe breaking ! ! ! !
     cpu.timeSlice = curPCBEntry.startTime;
     cpu.timeSliceUsed = curPCBEntry.timeUsed;
   }
@@ -203,11 +204,7 @@ void fork(int value) {
     // g. Set the start time to the current timestamp
     // 5. Add the pcb index to the ready queue.
     // 6. Increment the cpu's program counter by the value read in #3
-    for (int i = 0; i < 10; ++i) {
-      if (pcbEntry[i] == NULL) {
 
-      }
-    }
   }
   // Implements the R operation.
   void replace(string & argument) {
