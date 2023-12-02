@@ -178,7 +178,7 @@ void schedule() {
   if (runningState != -1 ) {
     return;
   } 
-
+  
   if (readyState.size() != 0) {
     runningState = readyState.front();
     readyState.pop_front();
@@ -218,6 +218,7 @@ void end() {
   cumulativeTimeDiff += timestamp + 1 - curPCBEntry.startTime;
   numTerminatedProcesses++;
   runningState = -1;
+  pcbEntryFreeIndex--;
 }
 // Implements the F operation.
 void fork(int value) {
@@ -235,9 +236,9 @@ void fork(int value) {
     // g. Set the start time to the current timestamp
     // 5. Add the pcb index to the ready queue.
     // 6. Increment the cpu's program counter by the value read in #3
-
+    pcbEntryFreeIndex++;
     int index = pcbEntryFreeIndex;
-    PcbEntry cur = pcbEntry[runningState];
+    PcbEntry cur = pcbEntry[index];
     // if statement might be wrong
     if (value + cur.programCounter< cur.program.size()){
       PcbEntry newPcbEntry;
@@ -251,7 +252,7 @@ void fork(int value) {
       readyState.push_back(index);
       cpu.programCounter += value;
       pcbEntry[index] = newPcbEntry;
-      index ++;
+      // index ++;
     } 
 
   }
@@ -306,6 +307,7 @@ void fork(int value) {
       fork(instruction.intArg);
       break;
     case 'R':
+      cout<<instruction.stringArg<<endl;
       replace(instruction.stringArg);
       break;
     }
@@ -332,12 +334,10 @@ void fork(int value) {
 // Implements the P command.
 void print() {
   if (fork() == 0) {
-    string state = runningState != -1 ? "running" : "not running";
-    string num = "" + cpu.value;
     string border = "******************************";
     string header = "The state of the system is as follows";
-    string msg = border + "\n" + header + "\n" + "The CPU is " + state + "\n" + "The CPU value is " + num + "\n" + border;
-    cout << msg << endl;
+    // string msg = border + "\n" + header + "\n" + "The CPU is " + state + "\n" + "The CPU value is " + num + "\n" + border;
+    cout << border + "\n" << header + "\n" << "runningState:" << runningState << "\n" << "The CPU value is " << cpu.value << "\n" + border << "Program Counter: " << cpu.programCounter << endl;
     exit(0);
   }
 }
@@ -388,6 +388,7 @@ int runProcessManager(int fileDescriptor) {
       cout << "You entered an invalid character!" << endl;
     }
   } while (ch != 'T');
+
   return EXIT_SUCCESS;
 }
 int main(int argc, char * argv[]) {
