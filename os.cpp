@@ -50,6 +50,9 @@ class PcbEntry {
   unsigned int timeUsed;
 };
 PcbEntry pcbEntry[10];
+
+//Initially the free index is 0
+int pcbEntryFreeIndex = 0;
 unsigned int timestamp = 0;
 Cpu cpu;
 // For the states below, -1 indicates empty (since it is an invalid index).
@@ -203,6 +206,25 @@ void fork(int value) {
     // g. Set the start time to the current timestamp
     // 5. Add the pcb index to the ready queue.
     // 6. Increment the cpu's program counter by the value read in #3
+
+    int index = pcbEntryFreeIndex;
+    PcbEntry cur = pcbEntry[runningState];
+    // if statement might be wrong
+    if (value + cur.programCounter + 1 < cur.program.size()){
+      PcbEntry newPcbEntry;
+      newPcbEntry.processId = index;
+      newPcbEntry.parentProcessId = cur.processId;
+      newPcbEntry.programCounter = cpu.programCounter;
+      newPcbEntry.value = cpu.value;
+      newPcbEntry.priority = cur.priority;
+      newPcbEntry.state = STATE_READY;
+      newPcbEntry.startTime = timestamp;
+      readyState.push_back(index);
+      cpu.programCounter += value;
+      pcbEntry[index] = newPcbEntry;
+      index ++;
+    } 
+
   }
   // Implements the R operation.
   void replace(string & argument) {
