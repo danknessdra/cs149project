@@ -140,7 +140,7 @@ void decrement(int value) {
 }
 // Performs scheduling.
 void schedule() {
-  // TODO: Implement
+  // done:raymond
   // 1. Return if there is still a processing running (runningState != -1).There is no need to schedule if a process is already running(at least until iLab 3)
   // 2. Get a new process to run, if possible, from the ready queue.
   // 3. If we were able to get a new process to run:
@@ -158,13 +158,14 @@ void schedule() {
     cpu.pProgram = &curPCBEntry.program;
     cpu.programCounter = curPCBEntry.programCounter;
     cpu.value = curPCBEntry.value;
+    // just in case, maybe breaking ! ! ! !
     cpu.timeSlice = curPCBEntry.startTime;
     cpu.timeSliceUsed = curPCBEntry.timeUsed;
   }
 }
 // Implements the B operation.
 void block() {
-  // TODO: Implement
+  // raymond:done
   // 1. Add the PCB index of the running process (stored in runningState) to the blocked queue.
 // 2. Update the process's PCB entry
 // a. Change the PCB's state to blocked.
@@ -180,7 +181,7 @@ void block() {
 }
 // Implements the E operation.
 void end() {
-// TODO: Implement
+// done:raymond
 // 1. Get the PCB entry of the running process.
 // 2. Update the cumulative time difference (increment it by timestamp + 1 - start time of the process).
 // 3. Increment the number of terminated processes.
@@ -292,11 +293,12 @@ void print() {
 }
 // Function that implements the process manager.
 int runProcessManager(int fileDescriptor) {
-  //vector<PcbEntry> pcbTable;
+  vector<PcbEntry> pcbTable;
   // Attempt to create the init process.
   if (!createProgram("init", pcbEntry[0].program)) {
     return EXIT_FAILURE;
   }
+
   pcbEntry[0].processId = 0;
   pcbEntry[0].parentProcessId = -1;
   pcbEntry[0].programCounter = 0;
