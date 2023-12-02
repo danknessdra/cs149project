@@ -371,10 +371,11 @@ int runProcessManager(int fileDescriptor) {
       break;
     case 'U':
       cout << "You entered U" << endl;
-      
+      unblock();
       break;
     case 'P':
       cout << "You entered P" << endl;
+      print();
       break;
     default:
       cout << "You entered an invalid character!" << endl;
@@ -426,7 +427,6 @@ int main(int argc, char * argv[]) {
     average = average / pcbEntryFreeIndex;
 
     cout << average << endl;
-    https://www.youtube.com/watch?v=3Hye_47c0Pc&list=WL&index=5
     write(pipeDescriptors[1], & ch, sizeof(ch));
     // Close the write end of the pipe for the commander process (for cleanup purposes).
     close(pipeDescriptors[1]);
