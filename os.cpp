@@ -239,7 +239,7 @@ void fork(int value) {
     int index = pcbEntryFreeIndex;
     PcbEntry cur = pcbEntry[runningState];
     // if statement might be wrong
-    if (value + cur.programCounter + 1 < cur.program.size()){
+    if (value + cur.programCounter< cur.program.size()){
       PcbEntry newPcbEntry;
       newPcbEntry.processId = index;
       newPcbEntry.parentProcessId = cur.processId;
@@ -331,6 +331,7 @@ void fork(int value) {
 }
 // Implements the P command.
 void print() {
+  
   string state = runningState != -1 ? "running" : "not running";
   cout << state << endl;
 }
