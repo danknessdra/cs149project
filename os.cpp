@@ -331,9 +331,15 @@ void fork(int value) {
 }
 // Implements the P command.
 void print() {
-  
-  string state = runningState != -1 ? "running" : "not running";
-  cout << state << endl;
+  if (fork() == 0) {
+    string state = runningState != -1 ? "running" : "not running";
+    string num = "" + cpu.value;
+    string border = "******************************";
+    string header = "The state of the system is as follows";
+    string msg = border + "\n" + header + "\n" + "The CPU is " + state + "\n" + "The CPU value is " + num + "\n" + border;
+    cout << msg << endl;
+    exit(0);
+  }
 }
 // Function that implements the process manager.
 int runProcessManager(int fileDescriptor) {
