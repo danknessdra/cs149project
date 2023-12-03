@@ -51,6 +51,34 @@ class PcbEntry {
 };
 PcbEntry pcbEntry[10];
 
+
+
+const std::string whiteSpaces( " \f\n\r\t\v" );
+
+void trimRight( std::string& str,
+      const std::string& trimChars = whiteSpaces )
+{
+   std::string::size_type pos = str.find_last_not_of( trimChars );
+   str.erase( pos + 1 );    
+}
+
+
+void trimLeft( std::string& str,
+      const std::string& trimChars = whiteSpaces )
+{
+   std::string::size_type pos = str.find_first_not_of( trimChars );
+   str.erase( 0, pos );
+}
+
+
+string trim( std::string& str, const std::string& trimChars = whiteSpaces )
+{
+   trimRight( str, trimChars );
+   trimLeft( str, trimChars );
+   return str;
+} 
+
+
 //Initially the free index is 0
 int pcbEntryFreeIndex = 0;
 unsigned int timestamp = 0;
@@ -407,29 +435,3 @@ int main(int argc, char * argv[]) {
   }
   return result;
 }
-
-const std::string whiteSpaces( " \f\n\r\t\v" );
-
-
-void trimRight( std::string& str,
-      const std::string& trimChars = whiteSpaces )
-{
-   std::string::size_type pos = str.find_last_not_of( trimChars );
-   str.erase( pos + 1 );    
-}
-
-
-void trimLeft( std::string& str,
-      const std::string& trimChars = whiteSpaces )
-{
-   std::string::size_type pos = str.find_first_not_of( trimChars );
-   str.erase( 0, pos );
-}
-
-
-string trim( std::string& str, const std::string& trimChars = whiteSpaces )
-{
-   trimRight( str, trimChars );
-   trimLeft( str, trimChars );
-   return str;
-} 
