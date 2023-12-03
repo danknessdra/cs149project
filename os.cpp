@@ -232,8 +232,14 @@ void fork(int value) {
     // TODO: Implement
     // 1. Clear the CPU's program (cpu.pProgram->clear()).
     // 2. Use createProgram() to read in the filename specified by argument into the CPU( * cpu.pProgram)
-    // a. Consider what to do if createProgram fails. I printed an error, incremented the cpu program counter and then returned.Note that createProgram can fail if the file could not be opened or did not exist.
+      // a. Consider what to do if createProgram fails. I printed an error, incremented the cpu program counter and then returned.Note that createProgram can fail if the file could not be opened or did not exist.
     // 3. Set the program counter to 0.
+    string filename = cpu.pProgram[cpu.programCounter].stringArg;
+    cpu.pProgram.clear()
+    if (!createProgram(filename, & pProgram)){
+      cout << "Not working" << endl;
+    }
+    cpu.programCounter = 0;
   }
   // Implements the Q command.
   void quantum() {
