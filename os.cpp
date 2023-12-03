@@ -332,6 +332,7 @@ void fork(int value) {
 // Implements the P command.
 void print() {
   if (fork() == 0) {
+    // reporter process
     string state = runningState != -1 ? "running" : "not running";
     string num = "" + cpu.value;
     string border = "******************************";
