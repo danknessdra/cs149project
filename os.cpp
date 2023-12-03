@@ -286,10 +286,20 @@ void fork(int value) {
     // b. Add the process to the ready queue.
     // c. Change the state of the process to ready (update its PCB entry).
   // 2. Call the schedule() function to give an unblocked process a chance to run (if possible).
+
+  if (blockedState.size() != 0) {
+    int pcbIndex = blockedState.front();
+    blockedState.pop_front();
+    readyState.push_back(pcbIndex);
+    pcbEntry[pcbIndex].state = STATE_READY;
+  }
+
+  schedule();
 }
 // Implements the P command.
 void print() {
-  cout << "Print command is not implemented until iLab 3" << endl;
+  string state = runningState != -1 ? "running" : "not running";
+  cout << state << endl;
 }
 // Function that implements the process manager.
 int runProcessManager(int fileDescriptor) {
@@ -328,6 +338,7 @@ int runProcessManager(int fileDescriptor) {
       break;
     case 'U':
       cout << "You entered U" << endl;
+      
       break;
     case 'P':
       cout << "You entered P" << endl;
@@ -354,32 +365,42 @@ int main(int argc, char * argv[]) {
     // Run the process manager.
     result = runProcessManager(pipeDescriptors[0]);
     // Close the read end of the pipe for the process manager process (for cleanup purposes).
-  close(pipeDescriptors[0]);
-  _exit(result);
-}
-else {
-  // The commander process is running.
-  // Close the unused read end of the pipe for the commander process.
-  close(pipeDescriptors[0]);
-  // Loop until a 'T' is written or until the pipe is broken.
-  do {
-    cout << "Enter Q, P, U or T" << endl;
-    cout << "$ ";
-    cin >> ch;
-    // Pass commands to the process manager process via the pipe.
-    if (write(pipeDescriptors[1], & ch, sizeof(ch)) != sizeof(ch)) {
-      // Assume the child process exited, breaking the pipe.
-      break;
-    }
+    close(pipeDescriptors[0]);
+    _exit(result);
   }
-  while (ch != 'T');
-  write(pipeDescriptors[1], & ch, sizeof(ch));
-  // Close the write end of the pipe for the commander process (for cleanup purposes).
-close(pipeDescriptors[1]);
-// Wait for the process manager to exit.
-wait( & result);
-}
-return result;
+  else {
+    // The commander process is running.
+    // Close the unused read end of the pipe for the commander process.
+    close(pipeDescriptors[0]);
+    // Loop until a 'T' is written or until the pipe is broken.
+    do {
+      cout << "Enter Q, P, U or T" << endl;
+      cout << "$ ";
+      cin >> ch;
+      // Pass commands to the process manager process via the pipe.
+      if (write(pipeDescriptors[1], & ch, sizeof(ch)) != sizeof(ch)) {
+        // Assume the child process exited, breaking the pipe.
+        break;
+      }
+    }
+    while (ch != 'T');
+
+    // Print the turn around time
+    int average = 0;
+    for (int i = 0; i < pcbEntryFreeIndex; i++) {
+      average += pcbEntry[i].timeUsed;
+    }
+    average = average / pcbEntryFreeIndex;
+
+    cout << average << endl;
+    https://www.youtube.com/watch?v=3Hye_47c0Pc&list=WL&index=5
+    write(pipeDescriptors[1], & ch, sizeof(ch));
+    // Close the write end of the pipe for the commander process (for cleanup purposes).
+    close(pipeDescriptors[1]);
+    // Wait for the process manager to exit.
+    wait( & result);
+  }
+  return result;
 }
 
 const std::string whiteSpaces( " \f\n\r\t\v" );
