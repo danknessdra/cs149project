@@ -235,7 +235,7 @@ void fork(int value) {
       // a. Consider what to do if createProgram fails. I printed an error, incremented the cpu program counter and then returned.Note that createProgram can fail if the file could not be opened or did not exist.
     // 3. Set the program counter to 0.
     string filename = cpu.pProgram[cpu.programCounter].stringArg;
-    cpu.pProgram.clear()
+    cpu.pProgram.clear();
     if (!createProgram(filename, & pProgram)){
       cout << "Not working" << endl;
     }
