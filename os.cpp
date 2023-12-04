@@ -185,7 +185,6 @@ void schedule() {
     cpu.pProgram = &pcbEntry[runningState].program;
     cpu.programCounter = pcbEntry[runningState].programCounter;
     cpu.value = pcbEntry[runningState].value;
-    // just in case, maybe breaking ! ! ! !
     cpu.timeSlice = pcbEntry[runningState].startTime;
     cpu.timeSliceUsed = pcbEntry[runningState].timeUsed;
   }
