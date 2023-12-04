@@ -50,7 +50,8 @@ class PcbEntry {
   unsigned int timeUsed;
 };
 PcbEntry pcbEntry[10];
-
+double cumulativeTimeDiff = 0;
+int numTerminatedProcesses = 0;
 
 
 const std::string whiteSpaces( " \f\n\r\t\v" );
@@ -91,8 +92,7 @@ deque < int > blockedState;
 // the table will always be the process ID. These choices waste memory, but since this
 // program is just a simulation it the easiest approach. Additionally, debugging is
 // simpler since table slots and process IDs are never re-used.
-double cumulativeTimeDiff = 0;
-int numTerminatedProcesses = 0;
+
 bool createProgram(const string & filename, vector < Instruction > & program) {
   ifstream file;
   int lineNum = 0;
@@ -385,6 +385,8 @@ int runProcessManager(int fileDescriptor) {
       break;
     }
     //TODO: Write a switch statement
+    double avg = cumulativeTimeDiff / numTerminatedProcesses;
+
     switch (ch) {
     case 'Q':
       quantum();
@@ -399,6 +401,9 @@ int runProcessManager(int fileDescriptor) {
       break;
     case 'T':
       cout << "You entered T" << endl;
+      cout <<"cumulativeTimeDiff: " <<cumulativeTimeDiff<< endl;
+      cout <<"numTerminatedProcesses: " <<numTerminatedProcesses<< endl;
+      cout <<"Average Turnaround time: " <<avg << endl;
       // T is handled in the do-while loop condition.
       break;
     default:
@@ -445,13 +450,7 @@ int main(int argc, char * argv[]) {
     while (ch != 'T');
 
     // Print the turn around time
-    int average = 0;
-    for (int i = 0; i < pcbEntryFreeIndex; i++) {
-      average += pcbEntry[i].timeUsed;
-    }
-    average = average / pcbEntryFreeIndex;
-
-    cout << average << endl;
+    
     write(pipeDescriptors[1], & ch, sizeof(ch));
     // Close the write end of the pipe for the commander process (for cleanup purposes).
     close(pipeDescriptors[1]);
