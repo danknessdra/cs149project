@@ -81,7 +81,9 @@ string trim( std::string& str, const std::string& trimChars = whiteSpaces )
 
 //Initially the free index is 0
 int pcbEntryFreeIndex = 0;
+int totalProcesses = 0; // TODO: might be 1
 unsigned int timestamp = 0;
+int turnaroundTimeSum = 0;
 Cpu cpu;
 // For the states below, -1 indicates empty (since it is an invalid index).
 int runningState = -1;
@@ -219,6 +221,7 @@ void end() {
   numTerminatedProcesses++;
   runningState = -1;
   pcbEntryFreeIndex--;
+  turnaroundTimeSum += curPCBEntry.timeUsed;
 }
 // Implements the F operation.
 void fork(int value) {
@@ -228,7 +231,7 @@ void fork(int value) {
   // 3. Ensure the passed-in value is not out of bounds.
   // 4. Populate the PCB entry obtained in #1
   // a. Set the process ID to the PCB index obtained in #1.
-  // b. Set the parent process ID to the process ID of the running process(use the running process 's PCB entry to get this).
+  // b. Set the parent process ID to the process ID of the running process(use the running process's PCB entry to get this).
     // c. Set the program counter to the cpu program counter.
     // d. Set the value to the cpu value.
     // e. Set the priority to the same as the parent process's priority.
@@ -237,24 +240,26 @@ void fork(int value) {
     // 5. Add the pcb index to the ready queue.
     // 6. Increment the cpu's program counter by the value read in #3
     pcbEntryFreeIndex++;
+    totalProcesses++;
     int index = pcbEntryFreeIndex;
     PcbEntry cur = pcbEntry[index];
-    // if statement might be wrong
-    if (value + cur.programCounter< cur.program.size()){
-      PcbEntry newPcbEntry;
-      newPcbEntry.processId = index;
-      newPcbEntry.parentProcessId = cur.processId;
-      newPcbEntry.programCounter = cpu.programCounter;
-      newPcbEntry.value = cpu.value;
-      newPcbEntry.priority = cur.priority;
-      newPcbEntry.state = STATE_READY;
-      newPcbEntry.startTime = timestamp;
-      readyState.push_back(index);
+    cout << "Avalible pcb entry: " << index << endl;
+    if (value + cpu.programCounter < cur.program.size()){
       cpu.programCounter += value;
-      pcbEntry[index] = newPcbEntry;
-      // index ++;
-    } 
-
+    } else {
+      cpu.programCounter = cur.program.size() - 1;
+    }
+    PcbEntry newPcbEntry;
+    newPcbEntry.processId = index;
+    newPcbEntry.parentProcessId = cur.processId;
+    newPcbEntry.programCounter = cpu.programCounter + 1;
+    newPcbEntry.value = cpu.value;
+    newPcbEntry.priority = cur.priority;
+    newPcbEntry.state = STATE_READY;
+    newPcbEntry.startTime = timestamp;
+    readyState.push_back(index);
+    cpu.programCounter += value;
+    pcbEntry[index] = newPcbEntry;
   }
   // Implements the R operation.
   void replace(string & argument) {
@@ -427,14 +432,12 @@ int main(int argc, char * argv[]) {
     }
     while (ch != 'T');
 
-    // Print the turn around time
-    int average = 0;
-    for (int i = 0; i < pcbEntryFreeIndex; i++) {
-      average += pcbEntry[i].timeUsed;
-    }
-    average = average / pcbEntryFreeIndex;
+    // Turn around time calculation
+    int average = turnaroundTimeSum / totalProcesses;
 
     cout << average << endl;
+
+
     write(pipeDescriptors[1], & ch, sizeof(ch));
     // Close the write end of the pipe for the commander process (for cleanup purposes).
     close(pipeDescriptors[1]);
