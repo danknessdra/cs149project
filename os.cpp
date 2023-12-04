@@ -354,6 +354,17 @@ void print() {
     exit(0);
   }
 }
+
+// Implements the T command line command.
+void printTurnAroundTime() {
+ if (fork() == 0) {
+    double avg = cumulativeTimeDiff / numTerminatedProcesses;
+    string border = "******************************";
+    string header = "Average Turnaround time: ";
+    cout << border + "\n" + header + "\n" << avg << "\n" + border << endl;
+    exit(0);
+  }
+}
 // Function that implements the process manager.
 int runProcessManager(int fileDescriptor) {
   vector<PcbEntry> pcbTable;
@@ -384,8 +395,6 @@ int runProcessManager(int fileDescriptor) {
       // Assume the parent process exited, breaking the pipe.
       break;
     }
-    //TODO: Write a switch statement
-    double avg = cumulativeTimeDiff / numTerminatedProcesses;
 
     switch (ch) {
     case 'Q':
@@ -401,10 +410,7 @@ int runProcessManager(int fileDescriptor) {
       break;
     case 'T':
       cout << "You entered T" << endl;
-      cout <<"cumulativeTimeDiff: " <<cumulativeTimeDiff<< endl;
-      cout <<"numTerminatedProcesses: " <<numTerminatedProcesses<< endl;
-      cout <<"Average Turnaround time: " <<avg << endl;
-      // T is handled in the do-while loop condition.
+      printTurnAroundTime();
       break;
     default:
       cout << "You entered an invalid character!" << endl;
@@ -413,6 +419,7 @@ int runProcessManager(int fileDescriptor) {
 
   return EXIT_SUCCESS;
 }
+
 int main(int argc, char * argv[]) {
   int pipeDescriptors[2];
   pid_t processMgrPid;
@@ -449,8 +456,6 @@ int main(int argc, char * argv[]) {
     }
     while (ch != 'T');
 
-    // Print the turn around time
-    
     write(pipeDescriptors[1], & ch, sizeof(ch));
     // Close the write end of the pipe for the commander process (for cleanup purposes).
     close(pipeDescriptors[1]);
