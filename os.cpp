@@ -341,8 +341,6 @@ void fork(int value) {
     readyState.push_back(pcbIndex);
     pcbEntry[pcbIndex].state = STATE_READY;
   }
-
-  schedule();
 }
 // Implements the P command.
 void print() {
