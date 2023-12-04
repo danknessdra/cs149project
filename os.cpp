@@ -219,9 +219,10 @@ void end() {
   numTerminatedProcesses++;
   runningState = -1;
   pcbEntryFreeIndex--;
-  if (curPCBEntry.parentProcessId != -1) {
-    readyState.push_back(curPCBEntry.parentProcessId);
-  }
+  // TODO: I think this should be removed
+  // if (curPCBEntry.parentProcessId != -1) {
+  //   readyState.push_back(curPCBEntry.parentProcessId);
+  // }
 }
 // Implements the F operation.
 void fork(int value) {
@@ -254,8 +255,7 @@ void fork(int value) {
       newPcbEntry.startTime = timestamp;
       readyState.push_back(index);
       pcbEntry[index] = newPcbEntry;
-      pcbEntry[runningState].programCounter = cpu.programCounter + value;
-      runningState = -1;
+      cpu.programCounter = cpu.programCounter + value;
     } 
     else {
       cout<<"Invalid F statement" <<endl;
@@ -278,10 +278,9 @@ void fork(int value) {
   }
   // Implements the Q command.
   void quantum() {
-    cout<<"test" << runningState<<endl;
-    cout<<cpu.programCounter << " "<< cpu.pProgram -> size()<<endl;
+    cout<<"Process: " << runningState<<endl;
+    cout<< "Program Counter: " << cpu.programCounter << ", Program Size:  "<< cpu.pProgram -> size()<<endl;
     Instruction instruction;
-    cout << "In quantum";
     if (runningState == -1) {
       cout << "No processes are running" << endl;
       ++timestamp;
@@ -305,19 +304,23 @@ void fork(int value) {
       break;
     case 'D':
       decrement(instruction.intArg);
+      cout << "instruction D " << instruction.intArg << endl;
       break;
     case 'B':
       block();
+      cout << "instruction B " << endl;
       break;
     case 'E':
       end();
+      cout << "instruction E " << endl;
       break;
     case 'F':
       fork(instruction.intArg);
+      cout << "instruction F " << instruction.intArg << endl;
       break;
     case 'R':
-      cout<<instruction.stringArg<<endl;
       replace(instruction.stringArg);
+      cout << "instruction R " << instruction.stringArg << endl;
       break;
     }
     ++timestamp;
