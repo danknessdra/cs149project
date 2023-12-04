@@ -182,14 +182,14 @@ void schedule() {
   if (readyState.size() != 0) {
     runningState = readyState.front();
     readyState.pop_front();
-    PcbEntry curPCBEntry = pcbEntry[runningState];
-    cpu.pProgram = &curPCBEntry.program;
-    cpu.programCounter = curPCBEntry.programCounter;
-    cpu.value = curPCBEntry.value;
+    cpu.pProgram = &pcbEntry[runningState].program;
+    cpu.programCounter = pcbEntry[runningState].programCounter;
+    cpu.value = pcbEntry[runningState].value;
     // just in case, maybe breaking ! ! ! !
-    cpu.timeSlice = curPCBEntry.startTime;
-    cpu.timeSliceUsed = curPCBEntry.timeUsed;
+    cpu.timeSlice = pcbEntry[runningState].startTime;
+    cpu.timeSliceUsed = pcbEntry[runningState].timeUsed;
   }
+  
 }
 // Implements the B operation.
 void block() {
@@ -219,6 +219,9 @@ void end() {
   numTerminatedProcesses++;
   runningState = -1;
   pcbEntryFreeIndex--;
+  if (curPCBEntry.parentProcessId != -1) {
+    readyState.push_back(curPCBEntry.parentProcessId);
+  }
 }
 // Implements the F operation.
 void fork(int value) {
@@ -238,22 +241,25 @@ void fork(int value) {
     // 6. Increment the cpu's program counter by the value read in #3
     pcbEntryFreeIndex++;
     int index = pcbEntryFreeIndex;
-    PcbEntry cur = pcbEntry[index];
-    // if statement might be wrong
-    if (value + cur.programCounter< cur.program.size()){
+    PcbEntry cur = pcbEntry[runningState];
+    if (value + cpu.programCounter< cur.program.size()){
       PcbEntry newPcbEntry;
       newPcbEntry.processId = index;
       newPcbEntry.parentProcessId = cur.processId;
       newPcbEntry.programCounter = cpu.programCounter;
+      newPcbEntry.program = * cpu.pProgram;
       newPcbEntry.value = cpu.value;
       newPcbEntry.priority = cur.priority;
       newPcbEntry.state = STATE_READY;
       newPcbEntry.startTime = timestamp;
       readyState.push_back(index);
-      cpu.programCounter += value;
       pcbEntry[index] = newPcbEntry;
-      // index ++;
+      pcbEntry[runningState].programCounter = cpu.programCounter + value;
+      runningState = -1;
     } 
+    else {
+      cout<<"Invalid F statement" <<endl;
+    }
 
   }
   // Implements the R operation.
@@ -263,6 +269,7 @@ void fork(int value) {
     // 2. Use createProgram() to read in the filename specified by argument into the CPU( * cpu.pProgram)
       // a. Consider what to do if createProgram fails. I printed an error, incremented the cpu program counter and then returned.Note that createProgram can fail if the file could not be opened or did not exist.
     // 3. Set the program counter to 0.
+    cout<<"executes"<<endl;
     cpu.pProgram->clear();
     if (!createProgram(argument, * cpu.pProgram)){
       cout << "Not working" << endl;
@@ -271,6 +278,8 @@ void fork(int value) {
   }
   // Implements the Q command.
   void quantum() {
+    cout<<"test" << runningState<<endl;
+    cout<<cpu.programCounter << " "<< cpu.pProgram -> size()<<endl;
     Instruction instruction;
     cout << "In quantum";
     if (runningState == -1) {
