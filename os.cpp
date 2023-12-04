@@ -205,6 +205,7 @@ void block() {
   curPCBEntry.state = STATE_BLOCKED;
   curPCBEntry.programCounter = cpu.programCounter;
   curPCBEntry.value = cpu.value;
+  pcbEntry[runningState] = curPCBEntry;
   runningState = -1;
 }
 // Implements the E operation.
@@ -395,6 +396,10 @@ int runProcessManager(int fileDescriptor) {
     case 'P':
       cout << "You entered P" << endl;
       print();
+      break;
+    case 'T':
+      cout << "You entered T" << endl;
+      // T is handled in the do-while loop condition.
       break;
     default:
       cout << "You entered an invalid character!" << endl;
