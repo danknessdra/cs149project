@@ -270,7 +270,6 @@ void fork(int value) {
     // 2. Use createProgram() to read in the filename specified by argument into the CPU( * cpu.pProgram)
       // a. Consider what to do if createProgram fails. I printed an error, incremented the cpu program counter and then returned.Note that createProgram can fail if the file could not be opened or did not exist.
     // 3. Set the program counter to 0.
-    cout<<"executes"<<endl;
     cpu.pProgram->clear();
     if (!createProgram(argument, * cpu.pProgram)){
       cout << "Not working" << endl;
@@ -279,8 +278,7 @@ void fork(int value) {
   }
   // Implements the Q command.
   void quantum() {
-    cout<<"Process: " << runningState<<endl;
-    cout<< "Program Counter: " << cpu.programCounter << ", Program Size:  "<< cpu.pProgram -> size()<<endl;
+    cout<<"Process: " << runningState << ". ";
     Instruction instruction;
     if (runningState == -1) {
       cout << "No processes are running" << endl;
@@ -297,15 +295,15 @@ void fork(int value) {
     switch (instruction.operation) {
     case 'S':
       set(instruction.intArg);
-      cout << "instruction S " << instruction.intArg << endl;
+      cout << "instruction S " << instruction.intArg << " --> cpuValue: " << cpu.value << endl;
       break;
     case 'A':
       add(instruction.intArg);
-      cout << "instruction A " << instruction.intArg << endl;
+      cout << "instruction A " << instruction.intArg << " --> cpuValue: " << cpu.value << endl;
       break;
     case 'D':
       decrement(instruction.intArg);
-      cout << "instruction D " << instruction.intArg << endl;
+      cout << "instruction D " << instruction.intArg << " --> cpuValue: " << cpu.value << endl;
       break;
     case 'B':
       block();
@@ -341,6 +339,8 @@ void fork(int value) {
     readyState.push_back(pcbIndex);
     pcbEntry[pcbIndex].state = STATE_READY;
   }
+
+  schedule();
 }
 // Implements the P command.
 void print() {
